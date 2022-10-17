@@ -54,79 +54,46 @@ def append(listbox, txt, color = '#9c7f00'):
     listbox.insert(tk.END, txt)
     listbox.itemconfig(tk.END, { 'bg' :  color, 'fg' : '#fff'})
 
-
 def main(listbox, hostname, val1):
-    consoleFmt = "%-25s %s"
-    # Get server IP
     serverIP = socket.gethostbyname(hostname)
-
-    # Create a TCP client socket
-    cSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    append(listbox, consoleFmt % ("[create socket]",""))
-    # Connect to server
-    '''
-    print('Connecting to %s port %s' % (serverIP, PORT))
-    try:
-        cSocket.connect((serverIP, PORT))
-    except Exception as msg:
-        append(listbox, consoleFmt % ("[socket error]", msg))
-        return
-    append(listbox, consoleFmt % ("[socket connect]",""))
-    '''
-#    in1 = input('Input a integer: ')
-#    val1 = int(in1)
-    
-	# Send message to server
-    def getMsg():
-        server_reply, reServerIp = cSocket.recvfrom(BUF_SIZE)
-        return int(server_reply.decode('utf-8')), reServerIp
-
     cSocket.settimeout(0.01)
-    val1Str = str(val1)
-    cSocket.sendto(val1Str.encode('utf-8'), (serverIP, PORT))
-    append(listbox, consoleFmt % ("[send]", f"data: {val1Str}"), "#009c0d")
-    # Receive server reply, buffer size = BUF_SIZE
-    try:
-        number, reServerIp = getMsg()
-    except socket.timeout:
-        cSocket.sendto(str(val1).encode('utf-8'), (serverIP, PORT))
-    while 1:
-        print(number)
-        append(listbox, consoleFmt % ("[recv]", f"data: {str(number)}"), "#00609c")
-        server_count = number
-        if server_count > 0:
-            server_count -= 1
-            val1Str = str(server_count)
+    def sendMsg():
+        lastNumber=val1
+        try:
+            val1Str = str(val1)
+            cSocket.sendto(val1Str.encode('utf-8'), (serverIP, PORT))
             append(listbox, consoleFmt % ("[send]", f"data: {val1Str}"), "#009c0d")
-                
-            cSocket.sendto(val1Str.encode('utf-8'), reServerIp)
-            try:
-                number, reServerIp = getMsg()
-            except socket.timeout:
-                cSocket.sendto(str(val1).encode('utf-8'), reServerIp)
-        elif server_count == 0:
-            server_count -= 1
-            val1Str = str(server_count)
-            append(listbox, consoleFmt % ("[send]", f"data: {val1Str}"), "#009c0d")
-            cSocket.sendto(val1Str.encode('utf-8'), reServerIp)
-            break
-        else:
-            break
+            server_reply, reServerIp = cSocket.recvfrom(BUF_SIZE)
+            while server_reply:
+                server_utf8 = server_reply.decode('utf-8')
+                print(server_utf8)
+                append(listbox, consoleFmt % ("[recv]", f"data: {server_utf8}"), "#00609c")
+                server_count = int(server_utf8)
+                if server_count == lastNumber-1:
+                    if server_count > 0:
+                        server_count -= 1
+                        val1Str = str(server_count)
+                        append(listbox, consoleFmt % ("[send]", f"data: {val1Str}"), "#009c0d")
+                            
+                        cSocket.sendto(val1Str.encode('utf-8'), reServerIp)
+                        server_reply, reServerIp = cSocket.recvfrom(BUF_SIZE)  
+                    else:
+                        break
+                    lastNumber=server_count
+                else:
+                    server_reply, reServerIp = cSocket.recvfrom(BUF_SIZE)  
+        except socket.timeout:
+            sendMsg()
+    sendMsg()
+    #append(listbox, consoleFmt % ("[socket close]",""))
+    #cSocket.close()
 
-    append(listbox, consoleFmt % ("[socket close]",""))
-    cSocket.close()
-
-# end of main
-
-def window_init():
-    window = createWindow()
-
-    console, listbox = createConsole(window)
-    controller = createController(window, listbox)
-    controller.pack(fill = "x", side = 'top')
-    console.pack(fill = "both", side = 'bottom', expand = True)
-    
-    window.mainloop()
-
-if __name__ == '__main__':
-    window_init()
+window = createWindow()
+consoleFmt = "%-25s %s"
+console, listbox = createConsole(window)
+controller = createController(window, listbox)
+controller.pack(fill = "x", side = 'top')
+console.pack(fill = "both", side = 'bottom', expand = True)
+cSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+append(listbox, consoleFmt % ("[create socket]",""))
+window.mainloop()

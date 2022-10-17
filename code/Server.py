@@ -1,5 +1,5 @@
 ####################################################
-#  D1014636 潘子珉                                      									
+#  D1014636 潘子珉                      									
 ####################################################
 import socket
 import tkinter as tk
@@ -43,30 +43,7 @@ def append(listbox, txt, color = '#9c7f00'):
     listbox.itemconfig(tk.END, { 'bg' :  color, 'fg' : '#fff'})
 
 def main(listbox, btn):
-    consoleFmt = "%-16s %20s   %s"
-    # Create a TCP Server socket
-    srvSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    append(listbox, consoleFmt % ("[create socket]","",""))
-    # Enable reuse address/port
-    #srvSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    #append(listbox,  consoleFmt % ("[setsockopt]",""))
-    # Bind 	on any incoming interface with PORT, '' is any interface
-    print('Starting up server on port: %s' % (PORT))
-    srvSocket.bind(('', PORT))
-    append(listbox, consoleFmt % ("[bind]","", f" port: {PORT}"))
-    
-    #listen incomming connection, connection number = backlog (5)
-    #srvSocket.listen(backlog)
-    #append(listbox, consoleFmt % ("[socket listen]",""))
-    
-    
-    # Accept the incomming connection
     print('Waiting to receive message from client')
-    #client, (rip, rport) = srvSocket.accept()
-    
-    # Receive client message, buffer size = BUF_SIZE
-    #client_msg = client.recv(BUF_SIZE)
     client_msg, reClientIp = srvSocket.recvfrom(BUF_SIZE)
     while client_msg:
         client_utf8 = client_msg.decode('utf-8')
@@ -74,19 +51,17 @@ def main(listbox, btn):
         append(listbox, consoleFmt % ("[recv]", f"{reClientIp[0]}:{reClientIp[1]}", f"data: {client_utf8}"), "#00609c")
         client_count = int(client_utf8)
         # Send message to client
-        client_count = client_count - 1
+        client_count -= 1
         server_reply = str(client_count)
         append(listbox, consoleFmt % ("[send]", f"{reClientIp[0]}:{reClientIp[1]}", f"data: {server_reply}"), "#009c0d")
         #client.send(server_reply.encode('utf-8'))
         srvSocket.sendto(server_reply.encode('utf-8'), reClientIp)
         client_msg, reClientIp = srvSocket.recvfrom(BUF_SIZE)
-
-
     # Close the TCP socket
-    append(listbox, consoleFmt % ("[socket close]","",""))
-    btn["state"] = tk.NORMAL
+    #append(listbox, consoleFmt % ("[socket close]","",""))
+    #btn["state"] = tk.NORMAL
     #client.close()
-    srvSocket.close()
+    #srvSocket.close()
 # end of main
 
 def server_start(listbox, btn):
@@ -94,15 +69,16 @@ def server_start(listbox, btn):
     t = threading.Thread(target=main,args=(listbox, btn))
     t.start()
     
-def window_init():
-    window = createWindow()
 
-    console, listbox = createConsole(window)
-    controller = createController(window, listbox)
-    controller.pack(fill = "x", side = 'top')
-    console.pack(fill = "both", side = 'bottom', expand = True)
-    
-    window.mainloop()
-    
-if __name__ == '__main__':
-    window_init()
+window = createWindow()
+consoleFmt = "%-16s %20s   %s"
+console, listbox = createConsole(window)
+controller = createController(window, listbox)
+controller.pack(fill = "x", side = 'top')
+console.pack(fill = "both", side = 'bottom', expand = True)
+srvSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+append(listbox, consoleFmt % ("[create socket]","",""))
+print('Starting up server on port: %s' % (PORT))
+srvSocket.bind(('', PORT))
+append(listbox, consoleFmt % ("[bind]","", f" port: {PORT}"))
+window.mainloop()
