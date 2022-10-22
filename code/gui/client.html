@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Client</title>
+    <script type="text/javascript" src="/eel.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .form {
+            width: 100vw;
+            height: 100px;
+            background: rgb(105, 88, 254);
+            background: linear-gradient(38deg, rgba(105, 88, 254, 1) 0%, rgba(176, 108, 255, 1) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .inputGroup {
+            width: 80vw;
+            position: relative;
+        }
+
+        #number {
+            height: 30px;
+            line-height: 30px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 0;
+            width: 70vw;
+            padding: 0 2vw;
+            margin: 0 auto;
+            outline: 0;
+        }
+
+        label[for="number"] {
+            position: absolute;
+            left: 2vw;
+            height: 30px;
+            line-height: 30px;
+            font-size: 1rem;
+            color: rgb(146, 146, 146);
+            opacity: 1;
+            transition: opacity 0.2s;
+        }
+
+        #number:focus~label,
+        #number:not(:placeholder-shown)~label {
+            opacity: 0;
+        }
+
+        #connectingBtn {
+            border: 0;
+            background-color: transparent;
+            color: #fff;
+            text-align: center;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        #container {
+            height: calc(100vh - 100px);
+            width: 100vw;
+            overflow: auto;
+        }
+
+        #container::-webkit-scrollbar {
+            width: 8px;
+            background-color: #fff;
+        }
+
+        #container::-webkit-scrollbar-thumb {
+            background: rgb(143, 143, 143);
+            border-radius: 13px;
+        }
+
+        .li {
+            padding: 13px 0;
+            margin: 0 auto;
+            width: 80%;
+            border-bottom: 1px #cecece solid;
+        }
+
+        .li .code {
+            font-size: 1.2rem;
+            font-weight: 600;
+            width: 5.5rem;
+            height: 1.6rem;
+            line-height: 1.6rem;
+            border-radius: 10px;
+            border: 2px solid;
+            display: inline-block;
+            text-align: center;
+            margin-right: 5vw;
+        }
+
+        .li .code.recv {
+            color: #65C000;
+            border-color: #65C000;
+        }
+
+        .li .code.timeout {
+            color: #FF5719;
+            border-color: #FF5719;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form">
+        <div class="inputGroup">
+            <input type="number" id="number" placeholder=" " required>
+            <label for="number">初始數值</label>
+        </div>
+        <button id="connectingBtn">連線</button>
+    </div>
+    <div id="container"></div>
+    <script>
+        const number = document.getElementById('number');
+        const connectingBtn = document.getElementById('connectingBtn');
+        const container = document.getElementById('container');
+
+        connectingBtn.addEventListener('click', () => {
+            connectingBtn.disabled = true;
+            eel.main(number.value);
+        });
+
+        eel.expose(writeClientMessage);
+        function writeClientMessage(code, msg) {
+            var li = document.createElement('div');
+            li.classList.add('li');
+            if (code == 1) {
+                li.innerHTML = `<span class="code recv">recv</span>data: ${msg}`;
+            } else {
+                li.innerHTML = `<span class="code timeout">timeout</span>reset data: ${msg}`;
+            }
+            container.appendChild(li);
+        }
+
+        eel.expose(connectEnd);
+        function connectEnd() {
+            connectingBtn.disabled = false;
+        }
+    </script>
+</body>
+
+</html>

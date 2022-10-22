@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Server</title>
+    <script type="text/javascript" src="/eel.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #container {
+            height: 100vh;
+            width: 100vw;
+            overflow: auto;
+        }
+
+        #container::-webkit-scrollbar {
+            width: 8px;
+            background-color: #fff;
+        }
+
+        #container::-webkit-scrollbar-thumb {
+            background: rgb(143, 143, 143);
+            border-radius: 13px;
+        }
+
+        .li {
+            padding: 13px 0;
+            margin: 0 auto;
+            width: 80%;
+            border-bottom: 1px #cecece solid;
+            position: relative;
+        }
+
+        .li .code {
+            font-size: 1.2rem;
+            font-weight: 600;
+            width: 5.5rem;
+            height: 1.6rem;
+            line-height: 1.6rem;
+            border-radius: 10px;
+            border: 2px solid;
+            display: inline-block;
+            text-align: center;
+            margin-right: 5vw;
+        }
+
+        .li .code.recv {
+            color: #65C000;
+            border-color: #65C000;
+        }
+
+        .ip {
+            position: absolute;
+            right: 0;
+            height: calc(1.6rem + 4px);
+            line-height: calc(1.6rem + 4px);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+    <script>
+        const container = document.getElementById('container');
+
+        eel.expose(writeServerMessage);
+        function writeServerMessage(msg, ip) {
+            var li = document.createElement('div');
+            li.classList.add('li');
+            li.innerHTML = `<span class="code recv">recv</span>data: ${msg}<span class="ip">${ip}</span>`;
+            container.appendChild(li);
+        }
+    </script>
+</body>
+
+</html>
