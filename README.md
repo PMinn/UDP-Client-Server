@@ -1,5 +1,5 @@
 # 網路程式設計
-## UDP-Client-Server
+## Lab 5-1 UDP Client/Server
 請寫一個 UDP Server 於 port 8888 接收 Client 傳來的訊息，Client 將會傳來一個整數的訊息，當 Server 收到這一個整數後印出 Client 的 IP/port 及收到的值，並將該整數值減一回傳給 Client。接著 Server 繼續等待下一個訊息。
 
  
